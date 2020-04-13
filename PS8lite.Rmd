@@ -1,5 +1,6 @@
 ---
 title: "Random Forests"
+author: "Lauren Forando"
 date: "Last updated on `r Sys.Date()`"
 output:
   html_document: 
@@ -187,7 +188,7 @@ MiscVal + MoSold + YrSold" %>%
 Fit one Random Forest model `model_rf` using any approach you want.
 
 ```{r}
-
+model_rf <- randomForest(form = model_formula, data = training, mtry = 2, ntree = 100)
 ```
 
 
@@ -201,9 +202,22 @@ Fit one Random Forest model `model_rf` using any approach you want.
 Using `model_rf` make predictions and submit to Kaggle.
 
 ```{r}
+#Make predictions by evaluating randomForests model on test dataset
+test <- test %>% 
+  mutate(
+    logSalePrice_hat_rf = predict(object = model_rf, newdata = test),
+    SalePrice_hat_rf = exp(logSalePrice_hat_rf) -1)
+#glimpse(test)
 
+#Kaggle submission code
+submission_rf <- test %>%
+  mutate(SalePrice = SalePrice_hat_rf) %>%
+  select(Id, SalePrice)
+
+#Write csv file to sumbit to Kaggle and get RMSLE score for our model
+write_csv(submission_rf, "data/submission_rf.csv")
 ```
 
 
-![](images/score_screenshot_naive.png){ width=100% }
+![](images/forando_rf.png){ width=100% }
 
